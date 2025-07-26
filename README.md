@@ -6,10 +6,10 @@ Simple auth service for microservices arhitecture
 
 ## Authentication API
 
-### Register
+### Register User
 
 ```http
-POST /api/auth/register
+POST /api/auth/register/user
 Content-Type: application/json
 
 {
@@ -25,7 +25,37 @@ Content-Type: application/json
 |------------|--------|----------|---------------------------|
 | name       | string | ✓        | User display name         |
 | email      | string | ✓        | Valid email address      |
-| password   | string | ✓        | Min 4 characters         |
+| password   | string | ✓        | Min 8 characters         |
+
+**Response (201 Created):**
+```json
+{
+  "accessToken": "string"
+}
+```
+
+### Register Company
+
+```http
+POST /api/auth/register/company
+Content-Type: application/json
+
+{
+  "name": "string",
+  "email": "company@example.com",
+  "password": "string"
+}
+```
+
+**Request Fields:**
+
+| Field      | Type   | Required | Description               |
+|------------|--------|----------|---------------------------|
+| name       | string | ✓        | Company display name     |
+| email      | string | ✓        | Valid email address      |
+| password   | string | ✓        | Min 8 characters         |
+| taxId      | string | ✓        | Min 10 characters        |
+
 
 **Response (201 Created):**
 ```json
@@ -87,11 +117,11 @@ X-User-Roles: USER
 
 **Headers:**
 
-| Header        | Type   | Required | Description               | Example        |
-|--------------|--------|----------|---------------------------|----------------|
-| Authorization| string |         | Bearer token              | "Bearer abc.xyz" |
-| X-User-Id    | int    | ✓        | Authenticated user ID     | 123            |
-| X-User-Roles | string | ✓        | User roles (min "USER")   | "USER,ADMIN"   |
+| Header       | Type   | Required | Description               |
+|--------------|--------|----------|---------------------------|
+| Authorization| string |          | Bearer token              |
+| X-User-Id    | int    | ✓        | Authenticated user ID     |
+| X-User-Roles | string | ✓        | User role (any)           |
 
 **Response (200 OK):**
 ```json
@@ -99,4 +129,12 @@ X-User-Roles: USER
   
 }
 ```
+
+
+## Related
+
+Here are other services of my project:
+
+- [**Raspberries Gateway**](https://github.com/rvfw/Raspberries_Gateway)
+- [Raspberries User Service](https://github.com/rvfw/Raspberries_UserService)
 
