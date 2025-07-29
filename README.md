@@ -1,7 +1,7 @@
 
 # Raspberries Auth Service
 
-Simple auth service for microservices arhitecture
+Simple auth service for marketplace.
 
 
 ## Authentication API
@@ -33,7 +33,7 @@ Content-Type: application/json
   "accessToken": "string"
 }
 ```
-
+Sends an AccountRegisteredEvent object to the **user-registered** topic in kafka.
 ### Register Company
 
 ```http
@@ -63,6 +63,7 @@ Content-Type: application/json
   "accessToken": "string"
 }
 ```
+Sends an AccountRegisteredEvent object to the **company-registered** topic in kafka.
 
 **Response Fields:**
 

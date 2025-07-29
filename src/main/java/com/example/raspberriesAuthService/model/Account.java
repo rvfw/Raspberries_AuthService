@@ -1,6 +1,7 @@
 package com.example.raspberriesAuthService.model;
 
 import com.example.raspberriesAuthService.enums.Role;
+import com.example.raspberriesAuthService.enums.Status;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -27,6 +28,7 @@ public abstract class Account {
     @Enumerated(EnumType.STRING)
     @Column(nullable=false)
     private Role role;
+
     protected Account(){}
     protected Account(String email, String password,Role role) {
         this.email = email;

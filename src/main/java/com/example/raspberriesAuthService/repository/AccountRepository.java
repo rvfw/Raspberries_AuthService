@@ -10,4 +10,5 @@ public interface AccountRepository extends JpaRepository<Account,Long> {
     @NotNull
     Optional<Account> findById(@NotNull Long id);
     Optional<Account> findByEmail(String email);
+    void deleteById(@NotNull Long id);
 }
