@@ -4,11 +4,11 @@ import com.example.raspberriesAuthService.enums.Role;
 import jakarta.persistence.Entity;
 
 @Entity
-public class Company extends Account{
+public class Seller extends Account{
     private String taxId;
-    public Company(){}
-    public Company(String email, String password, String taxId) {
-        super(email,password, Role.ROLE_COMPANY);
+    public Seller(){}
+    public Seller(String email, String password, String taxId) {
+        super(email,password, Role.ROLE_SELLER);
         this.taxId = taxId;
     }
 }

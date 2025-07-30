@@ -21,11 +21,11 @@ public class AuthController {
     public ResponseEntity<AuthResponse> registerUser(@Valid @RequestBody RegisterDto registerDto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(authService.registerUser(registerDto));
     }
-    @PostMapping("auth/register/company")
-    public ResponseEntity<AuthResponse> registerCompany(@Valid @RequestBody RegisterDto registerDto) {
+    @PostMapping("auth/register/seller")
+    public ResponseEntity<AuthResponse> registerSeller(@Valid @RequestBody RegisterDto registerDto) {
         if(registerDto.getTaxId()==null || registerDto.getTaxId().trim().length()<10)
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Tax Id required");
-        return ResponseEntity.status(HttpStatus.CREATED).body(authService.registerCompany(registerDto));
+        return ResponseEntity.status(HttpStatus.CREATED).body(authService.registerSeller(registerDto));
     }
     @PostMapping("auth/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginDto loginDto) {

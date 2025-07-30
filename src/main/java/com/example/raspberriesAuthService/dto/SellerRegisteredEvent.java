@@ -4,13 +4,13 @@ import com.example.raspberriesAuthService.enums.Role;
 import lombok.Getter;
 
 @Getter
-public class AccountRegisteredEvent {
+public class SellerRegisteredEvent {
     private final Long id;
     private final String name;
-    private final Role role;
-    public AccountRegisteredEvent(Long id,String name, Role role) {
+    private final String taxId;
+    public SellerRegisteredEvent(Long id, String name, String taxId) {
         this.id = id;
         this.name = name;
-        this.role = role;
+        this.taxId = taxId;
     }
 }

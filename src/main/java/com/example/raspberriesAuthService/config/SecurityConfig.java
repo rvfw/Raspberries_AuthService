@@ -1,6 +1,7 @@
 package com.example.raspberriesAuthService.config;
 
 import com.example.raspberriesAuthService.filter.AuthFilter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -17,9 +18,10 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
     private final AuthFilter authFilter;
+    @Value("${public-paths}")
+    private String[] publicPaths;
     public SecurityConfig(AuthFilter authFilter) {
         this.authFilter = authFilter;
     }
@@ -29,7 +31,7 @@ public class SecurityConfig {
                 .cors(cors->cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth->auth
-                        .requestMatchers("/api/auth/login","/api/auth/register/**").permitAll()
+                        .requestMatchers(publicPaths).permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class);

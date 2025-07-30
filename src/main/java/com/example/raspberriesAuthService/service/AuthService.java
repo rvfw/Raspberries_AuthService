@@ -1,11 +1,8 @@
 package com.example.raspberriesAuthService.service;
 
-import com.example.raspberriesAuthService.dto.AccountRegisteredEvent;
-import com.example.raspberriesAuthService.dto.LoginDto;
-import com.example.raspberriesAuthService.dto.RegisterDto;
-import com.example.raspberriesAuthService.dto.AuthResponse;
+import com.example.raspberriesAuthService.dto.*;
 import com.example.raspberriesAuthService.enums.Role;
-import com.example.raspberriesAuthService.model.Company;
+import com.example.raspberriesAuthService.model.Seller;
 import com.example.raspberriesAuthService.model.OutboxEvent;
 import com.example.raspberriesAuthService.model.User;
 import com.example.raspberriesAuthService.repository.OutboxEventRepository;
@@ -15,24 +12,22 @@ import com.example.raspberriesAuthService.repository.AccountRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 @Service
 public class AuthService {
     @Value("${kafka.topics.user-registered}")
     private String userRegisteredEvent;
+    @Value("${kafka.topics.seller-registered}")
+    private String sellerRegisteredEvent;
     private final AccountRepository accountRepository;
     private final OutboxEventRepository outboxEventRepository;
     private final JwtUtils jwtUtils;
@@ -53,30 +48,34 @@ public class AuthService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Email is already in use");});
         User user=new User(registerDto.getEmail(), passwordSecurity.encodePassword(registerDto.getPassword()));
         User createdUser= accountRepository.save(user);
-        addAccount(registerDto, createdUser.getId(), "USER");
+        OutboxEvent event;
+        try {
+            event = new OutboxEvent("USER", createdUser.getId(), userRegisteredEvent, objectMapper.writeValueAsString(
+                    new UserRegisteredEvent(createdUser.getId(), registerDto.getName(), Role.ROLE_USER)
+            ));
+        }catch (JsonProcessingException e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User registration failed");
+        }
+        outboxEventRepository.save(event);
         return new AuthResponse(jwtUtils.generateToken(createdUser));
     }
     @Transactional
-    public AuthResponse registerCompany(RegisterDto registerDto) {
+    public AuthResponse registerSeller(RegisterDto registerDto) {
         if(accountRepository.findByEmail(registerDto.getEmail()).isPresent()){
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Email is already in use");
         }
-        Company company=new Company(registerDto.getEmail(), passwordSecurity.encodePassword(registerDto.getPassword()),registerDto.getTaxId());
-        Company createdCompany= accountRepository.save(company);
-        addAccount(registerDto, createdCompany.getId(), "COMPANY");
-        return new AuthResponse(jwtUtils.generateToken(createdCompany));
-    }
-
-    private void addAccount(RegisterDto registerDto, Long id, String type) {
+        Seller seller=new Seller(registerDto.getEmail(), passwordSecurity.encodePassword(registerDto.getPassword()),registerDto.getTaxId());
+        Seller createdSeller = accountRepository.save(seller);
         OutboxEvent event;
         try {
-            event = new OutboxEvent(type, id, type.toLowerCase()+"-registered", objectMapper.writeValueAsString(
-                    new AccountRegisteredEvent(id, registerDto.getName(), Role.valueOf("ROLE_"+type))
+            event = new OutboxEvent("SELLER", createdSeller.getId(), sellerRegisteredEvent, objectMapper.writeValueAsString(
+                    new SellerRegisteredEvent(createdSeller.getId(), registerDto.getName(), registerDto.getTaxId())
             ));
         }catch (JsonProcessingException e){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Account registration failed");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Seller registration failed");
         }
         outboxEventRepository.save(event);
+        return new AuthResponse(jwtUtils.generateToken(createdSeller));
     }
 
     public AuthResponse login(LoginDto loginDto) {
